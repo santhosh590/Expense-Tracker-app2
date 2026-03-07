@@ -15,6 +15,31 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please add a password"],
     },
+    avatar: {
+      type: String,
+      default: "",
+    },
+    twoFactorSecret: {
+      type: String,
+      default: "",
+    },
+    twoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    biometricEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    biometricType: {
+      type: String,
+      enum: ["fingerprint", "face", "iris", ""],
+      default: "",
+    },
+    sessionTimeout: {
+      type: Number,
+      default: 30,
+    },
   },
   {
     timestamps: true,

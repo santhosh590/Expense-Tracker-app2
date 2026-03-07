@@ -34,3 +34,22 @@ export const deleteTransactionService = async (userId, id) => {
   await tx.deleteOne();
   return true;
 };
+
+export const updateTransactionService = async (userId, id, body) => {
+  const tx = await Transaction.findById(id);
+  if (!tx) throw new Error("Transaction not found");
+
+  if (tx.userId.toString() !== userId.toString()) {
+    throw new Error("Not authorized");
+  }
+
+  const { title, amount, type, category, date } = body;
+  if (title) tx.title = title;
+  if (amount) tx.amount = amount;
+  if (type) tx.type = type;
+  if (category) tx.category = category;
+  if (date) tx.date = date;
+
+  await tx.save();
+  return tx;
+};

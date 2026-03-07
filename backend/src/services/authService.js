@@ -15,6 +15,7 @@ export const registerService = async ({ name, email, password }) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    avatar: user.avatar || "",
     token: generateToken(user._id),
   };
 };
@@ -30,6 +31,7 @@ export const loginService = async ({ email, password }) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    avatar: user.avatar || "",
     token: generateToken(user._id),
   };
 };
@@ -37,4 +39,33 @@ export const loginService = async ({ email, password }) => {
 export const meService = async (userId) => {
   const user = await User.findById(userId).select("-password");
   return user;
+};
+
+export const updateProfileService = async (userId, body) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  if (body.name) user.name = body.name;
+  if (body.email) {
+    const exists = await User.findOne({ email: body.email, _id: { $ne: userId } });
+    if (exists) throw new Error("Email already in use");
+    user.email = body.email;
+  }
+
+  await user.save();
+  return { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" };
+};
+
+export const changePasswordService = async (userId, { currentPassword, newPassword }) => {
+  const user = await User.findById(userId);
+  if (!user) throw new Error("User not found");
+
+  const match = await bcrypt.compare(currentPassword, user.password);
+  if (!match) throw new Error("Current password is incorrect");
+
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(newPassword, salt);
+  await user.save();
+
+  return { message: "Password changed successfully" };
 };
