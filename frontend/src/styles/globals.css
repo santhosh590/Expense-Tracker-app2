@@ -1,0 +1,311 @@
+:root {
+  --bg: #070a13;
+  --bg2: #0b1020;
+  --card: rgba(255, 255, 255, 0.04);
+  --card2: rgba(255, 255, 255, 0.06);
+  --card-dark: rgba(255, 255, 255, 0.04);
+  --glass: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: rgba(255, 255, 255, 0.92);
+  --text-main: rgba(255, 255, 255, 0.92);
+  --text-muted: rgba(255, 255, 255, 0.55);
+  --muted: rgba(255, 255, 255, 0.62);
+
+  --primary: #6366f1;
+  --secondary: #a855f7;
+  --success: #22c55e;
+  --p1: #5c46ff;
+  --p2: #00ffd6;
+  --danger: #ff5a5a;
+  --warn: #ffb86b;
+
+  --subtle-bg: rgba(255, 255, 255, 0.03);
+  --subtle-border: rgba(255, 255, 255, 0.06);
+  --shadow: 0 20px 80px rgba(0, 0, 0, 0.55);
+}
+
+/* ────────────────────────────────────────────────
+   LIGHT THEME
+   ──────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --bg2: #e4e7ec;
+  --card: rgba(255, 255, 255, 0.85);
+  --card2: rgba(255, 255, 255, 0.92);
+  --card-dark: rgba(255, 255, 255, 0.9);
+  --glass: rgba(0, 0, 0, 0.03);
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #1a1a2e;
+  --text-main: #1a1a2e;
+  --text-muted: rgba(0, 0, 0, 0.5);
+  --muted: rgba(0, 0, 0, 0.5);
+
+  --subtle-bg: rgba(0, 0, 0, 0.03);
+  --subtle-border: rgba(0, 0, 0, 0.08);
+  --shadow: 0 20px 80px rgba(0, 0, 0, 0.08);
+}
+
+/* Body / Background */
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #f0f2f5 0%, #e4e7ec 100%) !important;
+  color: var(--text);
+}
+
+/* Cards */
+[data-theme="light"] .card {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* SummaryCards gradient card override */
+[data-theme="light"] .card[style*="linear-gradient(135deg, #1e1b4b"] {
+  color: white !important;
+}
+
+/* Page title */
+[data-theme="light"] .page-title {
+  background: linear-gradient(to right, #1a1a2e, #4a4a6a) !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* Section titles */
+[data-theme="light"] .section-title {
+  color: var(--text) !important;
+}
+
+/* Inputs */
+[data-theme="light"] .input {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="light"] .input:focus {
+  background: #fff !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+}
+
+[data-theme="light"] .input option {
+  background: white;
+  color: #1a1a2e;
+}
+
+/* Labels */
+[data-theme="light"] .label {
+  color: var(--muted) !important;
+}
+
+/* Buttons */
+[data-theme="light"] .btn.secondary {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="light"] .btn.secondary:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Sidebar */
+[data-theme="light"] .sidebar,
+[data-theme="light"] div[style*="var(--card-dark)"] {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-right-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] .sidebar *,
+[data-theme="light"] div[style*="var(--card-dark)"] * {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* Keep active sidebar link white text */
+[data-theme="light"] a[style*="linear-gradient(90deg"] *,
+[data-theme="light"] a[style*="linear-gradient(90deg"] {
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+/* Navbar */
+[data-theme="light"] div[style*="rgba(255,255,255,0.03)"][style*="backdrop-filter"] {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* General text color fix - override color:white on all elements */
+[data-theme="light"] div,
+[data-theme="light"] span,
+[data-theme="light"] p,
+[data-theme="light"] label,
+[data-theme="light"] button,
+[data-theme="light"] select,
+[data-theme="light"] input {
+  color: var(--text);
+}
+
+/* Budget progress bar track */
+[data-theme="light"] div[style*="rgba(255,255,255,0.1)"] {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Subtle backgrounds (transaction items, etc.) */
+[data-theme="light"] div[style*="rgba(255,255,255,0.03)"] {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+[data-theme="light"] div[style*="rgba(255,255,255,0.05)"] {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="light"] div[style*="rgba(255,255,255,0.06)"] {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Subtle borders */
+[data-theme="light"] div[style*="rgba(255,255,255,0.06)"],
+[data-theme="light"] div[style*="rgba(255,255,255,0.08)"] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="light"] div[style*="border: 1px solid rgba(255,255,255"] {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Dividers (e.g. in Navbar) */
+[data-theme="light"] div[style*="rgba(255,255,255,0.1)"][style*="width: 1"] {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Override explicit color:white */
+[data-theme="light"] div[style*="color: white"],
+[data-theme="light"] span[style*="color: white"],
+[data-theme="light"] div[style*='color: "white"'] {
+  color: var(--text) !important;
+}
+
+/* Keep colored text (success/danger) as-is */
+[data-theme="light"] .text-success {
+  color: var(--success) !important;
+}
+
+[data-theme="light"] .text-danger {
+  color: var(--danger) !important;
+}
+
+/* SVG circle in FinancialHealth */
+[data-theme="light"] circle[stroke="rgba(255,255,255,0.1)"] {
+  stroke: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Scrollbar */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Selection */
+[data-theme="light"] ::selection {
+  background: rgba(92, 70, 255, 0.2);
+}
+
+/* Footer */
+[data-theme="light"] footer,
+[data-theme="light"] footer * {
+  color: var(--muted) !important;
+}
+
+/* Export buttons with color:white inline */
+[data-theme="light"] button[style*="color: white"],
+[data-theme="light"] button[style*='color:"white"'] {
+  color: var(--text) !important;
+}
+
+/* Recharts legend text */
+[data-theme="light"] .recharts-legend-item-text {
+  color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Recharts tooltip wrapper */
+[data-theme="light"] .recharts-default-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #1a1a2e !important;
+}
+
+/* Auth pages */
+[data-theme="light"] .auth-card {
+  background: var(--card) !important;
+  color: var(--text) !important;
+}
+
+/* Modal backdrop */
+[data-theme="light"] div[style*="rgba(0,0,0,0.6)"] {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ────────────────────────────────────────────────
+   GENERAL (both themes)
+   ──────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Manrope", system-ui, -apple-system, Segoe UI, Roboto, Arial;
+}
+
+body {
+  background: radial-gradient(circle at 12% 10%,
+      rgba(92, 70, 255, 0.18),
+      transparent 55%),
+    radial-gradient(circle at 85% 25%,
+      rgba(0, 255, 214, 0.12),
+      transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg2));
+  color: var(--text);
+  overflow-x: hidden;
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+::selection {
+  background: rgba(0, 255, 214, 0.22);
+}
+
+/* smooth scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
