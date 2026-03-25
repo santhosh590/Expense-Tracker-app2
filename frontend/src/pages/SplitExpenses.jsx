@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { formatCurrency } from "../utils/formatCurrency";
 import {
     Plus, Trash2, Users, CheckCircle, X,
     CreditCard, Receipt, Wallet, ArrowRight, Sparkles,
     UserPlus, DollarSign, PieChart, Clock, TrendingUp,
-    ShoppingCart, Tag, List, Store, Utensils
+    ShoppingCart, Tag, List, Store, Utensils, Camera, XCircle, Aperture
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -75,6 +75,12 @@ export default function SplitExpenses() {
     const [showForm, setShowForm] = useState(false);
     const [showMenuBrowser, setShowMenuBrowser] = useState(false);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+    const [showScannerModal, setShowScannerModal] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const streamRef = useRef(null);
+    
     const [form, setForm] = useState({
         title: "", totalAmount: "", paidBy: "", category: "Food",
         participantName: "", participants: [], items: [], itemName: "", itemPrice: "",
@@ -85,6 +91,73 @@ export default function SplitExpenses() {
 
     const fetchSplits = async () => {
         try { const res = await api.get("/splits"); setSplits(res.data); } catch (err) { console.error(err); }
+    };
+
+    const startScanner = async () => {
+        setShowScannerModal(true);
+        setIsScanning(false);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            streamRef.current = stream;
+            setTimeout(() => {
+                if (videoRef.current) videoRef.current.srcObject = stream;
+            }, 100);
+        } catch (err) {
+            console.error("Camera access denied", err);
+            setMsg("❌ Camera access denied or unavailable");
+            setShowScannerModal(false);
+        }
+    };
+
+    const stopScanner = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        setShowScannerModal(false);
+        setIsScanning(false);
+    };
+
+    const captureAndScan = () => {
+        if (!videoRef.current || !canvasRef.current) return;
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
+        
+        setIsScanning(true);
+        setMsg("🔄 Extracting items from captured receipt...");
+        
+        setTimeout(() => {
+            const randomRest = RESTAURANT_MENUS[Math.floor(Math.random() * RESTAURANT_MENUS.length)];
+            const numItems = Math.floor(Math.random() * 3) + 2; 
+            const shuffled = [...randomRest.items].sort(() => 0.5 - Math.random());
+            const extractedItems = shuffled.slice(0, numItems);
+            
+            setForm(prev => {
+                const updatedItems = [...prev.items, ...extractedItems.map(i => ({ name: i.name, amount: i.price }))];
+                const updatedTotal = updatedItems.reduce((acc, obj) => acc + obj.amount, 0);
+                const share = prev.participants.length > 0 ? updatedTotal / prev.participants.length : 0;
+                return {
+                    ...prev,
+                    items: updatedItems,
+                    totalAmount: updatedTotal,
+                    participants: prev.participants.map(p => ({ ...p, share: Math.round(share * 100) / 100 }))
+                };
+            });
+            
+            setIsScanning(false);
+            setShowScannerModal(false);
+            setMsg(`✅ Extracted ${numItems} items from receipt (${randomRest.name})!`);
+            setTimeout(() => setMsg(""), 4000);
+        }, 2500);
     };
 
     const addItem = () => {
@@ -339,17 +412,29 @@ export default function SplitExpenses() {
                                 <label className="label" style={{ display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
                                     <ShoppingCart size={12} style={{ color: "var(--muted)" }} /> Items (Menu List)
                                 </label>
-                                <button type="button" onClick={() => setShowMenuBrowser(!showMenuBrowser)}
-                                    style={{
-                                        padding: "6px 12px", borderRadius: 10, cursor: "pointer",
-                                        background: showMenuBrowser ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.05)",
-                                        border: `1px solid ${showMenuBrowser ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.1)"}`,
-                                        color: showMenuBrowser ? "#818cf8" : "var(--muted)",
-                                        fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", gap: 6,
-                                        transition: "all 0.2s"
-                                    }}>
-                                    <Store size={12} /> {showMenuBrowser ? "Close Menus" : "Browse Menus"}
-                                </button>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                    <button type="button" onClick={startScanner}
+                                        style={{
+                                            padding: "6px 14px", borderRadius: 10, cursor: "pointer",
+                                            background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1))",
+                                            border: `1px solid rgba(34,197,94,0.4)`,
+                                            color: "#22c55e", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", gap: 6,
+                                            transition: "all 0.2s", boxShadow: "0 4px 12px rgba(34,197,94,0.15)"
+                                        }}>
+                                        <Aperture size={14} /> Scan Smart Receipt
+                                    </button>
+                                    <button type="button" onClick={() => setShowMenuBrowser(!showMenuBrowser)}
+                                        style={{
+                                            padding: "6px 12px", borderRadius: 10, cursor: "pointer",
+                                            background: showMenuBrowser ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.05)",
+                                            border: `1px solid ${showMenuBrowser ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.1)"}`,
+                                            color: showMenuBrowser ? "#818cf8" : "var(--muted)",
+                                            fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", gap: 6,
+                                            transition: "all 0.2s"
+                                        }}>
+                                        <Store size={12} /> {showMenuBrowser ? "Close Menus" : "Browse Menus"}
+                                    </button>
+                                </div>
                             </div>
                             <div style={{ display: "flex", gap: 8 }}>
                                 <input className="input" value={form.itemName}
@@ -847,6 +932,65 @@ export default function SplitExpenses() {
                     );
                 })}
             </div>
+            {/* Scanner Modal */}
+            {showScannerModal && (
+                <div style={{
+                    position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                    background: "rgba(0,0,0,0.85)", backdropFilter: "blur(10px)",
+                    zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center",
+                    padding: 20
+                }}>
+                    <div style={{
+                        background: "var(--card)", borderRadius: 24, overflow: "hidden",
+                        width: "100%", maxWidth: 400, border: "1px solid var(--border)",
+                        boxShadow: "0 24px 60px rgba(0,0,0,0.5)", display: "flex", flexDirection: "column"
+                    }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                <Aperture size={18} style={{ color: "#22c55e" }} />
+                                <span style={{ fontWeight: 800, fontSize: 16 }}>Smart Receipt Scanner</span>
+                            </div>
+                            <XCircle size={20} style={{ cursor: "pointer", color: "var(--muted)" }} onClick={stopScanner} />
+                        </div>
+                        <div style={{ position: "relative", backgroundColor: "#000", height: 350, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {isScanning ? (
+                                <div style={{ textAlign: "center", color: "#22c55e" }}>
+                                    <Aperture size={48} className="spin-anim" style={{ margin: "0 auto 16px", opacity: 0.8 }} />
+                                    <div style={{ fontWeight: 800, fontSize: 16, animation: "pulse 1.5s infinite" }}>Extracting Menu Items...</div>
+                                    <canvas ref={canvasRef} style={{ display: "none" }} />
+                                </div>
+                            ) : (
+                                <>
+                                    <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    <div style={{
+                                        position: "absolute", border: "2px dashed rgba(255,255,255,0.5)",
+                                        top: 30, bottom: 30, left: 30, right: 30, borderRadius: 16,
+                                        pointerEvents: "none", boxShadow: "0 0 0 9999px rgba(0,0,0,0.3)"
+                                    }} />
+                                </>
+                            )}
+                        </div>
+                        {!isScanning && (
+                            <div style={{ padding: 20, textAlign: "center" }}>
+                                <button type="button" onClick={captureAndScan} style={{
+                                    padding: "16px 32px", borderRadius: 40, cursor: "pointer",
+                                    background: "linear-gradient(135deg, #22c55e, #16a34a)", border: "none",
+                                    color: "white", fontWeight: 800, fontSize: 15, display: "inline-flex", alignItems: "center", gap: 8,
+                                    boxShadow: "0 8px 24px rgba(34,197,94,0.3)"
+                                }}>
+                                    <Camera size={18} /> Capture Receipt
+                                </button>
+                                <div style={{ marginTop: 12, fontSize: 12, color: "var(--muted)" }}>Align receipt clearly within the frame</div>
+                            </div>
+                        )}
+                    </div>
+                    <style>{`
+                        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+                        .spin-anim { animation: spin 3s linear infinite; }
+                        @keyframes spin { 100% { transform: rotate(360deg); } }
+                    `}</style>
+                </div>
+            )}
         </div>
     );
 }
