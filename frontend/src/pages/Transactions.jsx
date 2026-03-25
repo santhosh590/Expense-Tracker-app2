@@ -3,15 +3,17 @@ import TransactionForm from "../components/transactions/TransactionForm";
 import TransactionList from "../components/transactions/TransactionList";
 import TransactionFilter from "../components/transactions/TransactionFilter";
 import { TransactionContext } from "../context/TransactionContext";
-import { Upload, FileSpreadsheet, RefreshCw } from "lucide-react";
+import BankSyncModal from "../components/transactions/BankSyncModal";
+import { FileSpreadsheet, RefreshCw, Download, Building2 } from "lucide-react";
 import api from "../services/api";
 
 export default function Transactions() {
-  const { transactions, removeTransaction, loading, fetchTransactions, isRefreshing, lastRefreshed } = useContext(TransactionContext);
+  const { transactions, removeTransaction, loading, fetchTransactions, isRefreshing } = useContext(TransactionContext);
   const [filters, setFilters] = useState({
     type: "", category: "", search: "", dateFrom: "", dateTo: "", amountMin: "", amountMax: "",
   });
   const [importMsg, setImportMsg] = useState("");
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   const filtered = transactions.filter((t) => {
     if (filters.type && t.type !== filters.type) return false;
@@ -45,33 +47,15 @@ export default function Transactions() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const text = await file.text();
-    const lines = text.split("\n").filter(Boolean);
-    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
-
-    const rows = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(",").map((c) => c.trim());
-      const obj = {};
-      headers.forEach((h, idx) => (obj[h] = cols[idx]));
-      if (obj.title && obj.amount && obj.type) {
-        rows.push({
-          title: obj.title, amount: Number(obj.amount),
-          type: obj.type, category: obj.category || "Other",
-          date: obj.date || new Date().toISOString().slice(0, 10),
-          notes: obj.notes || "", tags: obj.tags ? obj.tags.split("|") : [],
-        });
-      }
-    }
-
-    if (rows.length === 0) {
-      setImportMsg("❌ No valid rows found. CSV must have: title, amount, type columns.");
-      return;
-    }
+    const formData = new FormData();
+    formData.append("file", file);
 
     try {
-      for (const row of rows) await api.post("/transactions", row);
-      setImportMsg(`✅ Imported ${rows.length} transactions!`);
+      setImportMsg("⏳ Importing...");
+      const res = await api.post("/transactions/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setImportMsg(`✅ ${res.data.message}`);
       if (fetchTransactions) fetchTransactions();
     } catch (err) {
       setImportMsg("❌ Import failed: " + (err?.response?.data?.message || err.message));
@@ -79,6 +63,22 @@ export default function Transactions() {
 
     e.target.value = "";
     setTimeout(() => setImportMsg(""), 5000);
+  };
+
+  // CSV Export
+  const handleCSVExport = async () => {
+    try {
+      const res = await api.get("/transactions/export", { responseType: "blob" });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "transactions.csv");
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      alert("Failed to export transactions");
+    }
   };
 
   return (
@@ -115,6 +115,24 @@ export default function Transactions() {
             <RefreshCw size={14} style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }} />
           </button>
 
+          <button
+            className="btn small secondary"
+            onClick={handleCSVExport}
+            style={{ padding: "8px 16px", borderRadius: 14, fontSize: 13, gap: 6, display: "flex", alignItems: "center" }}
+            title="Export to CSV"
+          >
+            <Download size={14} /> Export CSV
+          </button>
+
+          <button
+            className="btn small secondary"
+            onClick={() => setShowSyncModal(true)}
+            style={{ padding: "8px 16px", borderRadius: 14, fontSize: 13, gap: 6, display: "flex", alignItems: "center", background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(16,185,129,0.05))", color: "#3b82f6", border: "1px solid rgba(59,130,246,0.2)" }}
+            title="Auto-Sync Bank"
+          >
+            <Building2 size={14} /> Connect Bank
+          </button>
+
           <label style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "10px 20px", borderRadius: 14,
@@ -141,6 +159,17 @@ export default function Transactions() {
           border: `1px solid ${importMsg.startsWith("✅") ? "rgba(34,197,94,0.2)" : "rgba(255,90,90,0.2)"}`,
           backdropFilter: "blur(10px)",
         }}>{importMsg}</div>
+      )}
+
+      {showSyncModal && (
+          <BankSyncModal 
+              onClose={() => setShowSyncModal(false)}
+              onSuccess={() => {
+                  setImportMsg("✅ Bank synced successfully!");
+                  if (fetchTransactions) fetchTransactions();
+                  setTimeout(() => setImportMsg(""), 5000);
+              }}
+          />
       )}
 
       <div className="grid-3">

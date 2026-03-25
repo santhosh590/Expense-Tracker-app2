@@ -1,4 +1,4 @@
-import { TrendingUp, AlertCircle, CheckCircle, Lightbulb, Target, PiggyBank, Flame, ShieldCheck } from 'lucide-react';
+import { TrendingUp, AlertCircle, CheckCircle, Lightbulb, PiggyBank, Flame, ShieldCheck } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 
 export default function FinancialHealth({ balance, income, expense, budget, transactions = [] }) {

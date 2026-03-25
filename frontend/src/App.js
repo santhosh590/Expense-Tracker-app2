@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Auth/Login";
@@ -12,6 +13,7 @@ import SavingsGoals from "./pages/SavingsGoals";
 import CalendarPage from "./pages/Calendar";
 import SplitExpenses from "./pages/SplitExpenses";
 import Security from "./pages/Security";
+import AiAdvisor from "./pages/AiAdvisor";
 
 import Sidebar from "./components/common/Sidebar";
 import Navbar from "./components/common/Navbar";
@@ -41,6 +43,11 @@ function AppLayout({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    const theme = localStorage.getItem("theme") || "dark";
+    document.documentElement.setAttribute("data-theme", theme);
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -59,6 +66,9 @@ export default function App() {
         } />
         <Route path="/reports" element={
           <PrivateRoute><AppLayout><Reports /></AppLayout></PrivateRoute>
+        } />
+        <Route path="/ai-advisor" element={
+          <PrivateRoute><AppLayout><AiAdvisor /></AppLayout></PrivateRoute>
         } />
         <Route path="/budget" element={
           <PrivateRoute><AppLayout><Budget /></AppLayout></PrivateRoute>

@@ -17,6 +17,12 @@ const splitExpenseSchema = new mongoose.Schema(
                 settled: { type: Boolean, default: false },
             },
         ],
+        items: [
+            {
+                name: { type: String, required: true },
+                amount: { type: Number, required: true },
+            },
+        ],
         date: { type: Date, default: Date.now },
         category: { type: String, default: "Other" },
     },

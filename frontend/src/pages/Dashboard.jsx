@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from "react";
+import { formatCurrency } from "../utils/formatCurrency";
 import { TransactionContext } from "../context/TransactionContext";
 import { useBudget } from "../context/BudgetContext";
 import SummaryCards from "../components/dashboard/SummaryCards";
@@ -13,7 +14,7 @@ import TrendChart from "../components/charts/TrendChart";
 import AddTransactionModal from "../components/dashboard/AddTransactionModal";
 import { useToast } from "../components/common/ToastNotification";
 import { useLiveClock } from "../hooks/useRealTime";
-import { Plus, Wallet, Calendar, RefreshCw, Clock, Activity } from "lucide-react";
+import { Plus, Wallet, Calendar, RefreshCw, Clock } from "lucide-react";
 
 export default function Dashboard() {
   const { transactions, lastRefreshed, isRefreshing, fetchTransactions } = useContext(TransactionContext);
@@ -24,9 +25,7 @@ export default function Dashboard() {
   const [modal, setModal] = useState(null);
   const [alertShown, setAlertShown] = useState({});
 
-  useEffect(() => {
-    fetchBudget(getCurrentMonth());
-  }, []);
+  useEffect(() => { fetchBudget(getCurrentMonth()); }, [fetchBudget, getCurrentMonth]);
 
   const income = transactions
     .filter((x) => x.type === "income")
@@ -45,16 +44,16 @@ export default function Dashboard() {
     const pct = (expense / budgetLimit) * 100;
 
     if (pct >= 100 && !alertShown["100"]) {
-      addToast(`🚫 Budget exceeded! You've spent ₹${expense.toLocaleString()} of ₹${budgetLimit.toLocaleString()} budget.`, "error", 8000);
+      addToast(`🚫 Budget exceeded! You've spent ${formatCurrency(expense)} of ${formatCurrency(budgetLimit)} budget.`, "error", 8000);
       setAlertShown((p) => ({ ...p, "100": true }));
     } else if (pct >= 90 && !alertShown["90"]) {
-      addToast(`⚠️ 90% budget used! ₹${(budgetLimit - expense).toLocaleString()} remaining.`, "warning", 7000);
+      addToast(`⚠️ 90% budget used! ${formatCurrency(budgetLimit - expense)} remaining.`, "warning", 7000);
       setAlertShown((p) => ({ ...p, "90": true }));
     } else if (pct >= 80 && !alertShown["80"]) {
       addToast(`💡 80% budget used. Consider reducing expenses this month.`, "warning", 6000);
       setAlertShown((p) => ({ ...p, "80": true }));
     }
-  }, [expense, budgetLimit]);
+  }, [expense, budgetLimit, addToast, alertShown]);
 
   const currentDate = now.toLocaleDateString("en-US", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
@@ -83,7 +82,7 @@ export default function Dashboard() {
             <Clock size={13} />
             <span style={{
               fontWeight: 700,
-              background: "linear-gradient(90deg, #6366f1, #ec4899)",
+              background: "linear-gradient(90deg, #ded869, #ec4899)",
               WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
               fontFamily: "'SF Mono', 'Cascadia Code', monospace",
             }}>{currentTime}</span>

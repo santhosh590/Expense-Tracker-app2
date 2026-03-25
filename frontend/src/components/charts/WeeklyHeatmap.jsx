@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { TransactionContext } from "../../context/TransactionContext";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { Flame } from "lucide-react";
+
 
 export default function WeeklyHeatmap() {
     const { transactions } = useContext(TransactionContext);

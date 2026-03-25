@@ -16,6 +16,7 @@ export const registerService = async ({ name, email, password }) => {
     name: user.name,
     email: user.email,
     avatar: user.avatar || "",
+    baseCurrency: user.baseCurrency || "INR",
     token: generateToken(user._id),
   };
 };
@@ -32,6 +33,7 @@ export const loginService = async ({ email, password }) => {
     name: user.name,
     email: user.email,
     avatar: user.avatar || "",
+    baseCurrency: user.baseCurrency || "INR",
     token: generateToken(user._id),
   };
 };
@@ -46,6 +48,7 @@ export const updateProfileService = async (userId, body) => {
   if (!user) throw new Error("User not found");
 
   if (body.name) user.name = body.name;
+  if (body.baseCurrency) user.baseCurrency = body.baseCurrency;
   if (body.email) {
     const exists = await User.findOne({ email: body.email, _id: { $ne: userId } });
     if (exists) throw new Error("Email already in use");
@@ -53,7 +56,7 @@ export const updateProfileService = async (userId, body) => {
   }
 
   await user.save();
-  return { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "" };
+  return { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "", baseCurrency: user.baseCurrency || "INR" };
 };
 
 export const changePasswordService = async (userId, { currentPassword, newPassword }) => {

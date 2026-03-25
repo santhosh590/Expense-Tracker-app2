@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { getBudgetAPI, saveBudgetAPI } from "../services/budgetService";
 
 const BudgetContext = createContext();
@@ -27,7 +27,7 @@ export function BudgetProvider({ children }) {
         } finally {
             setBudgetLoading(false);
         }
-    }, []);
+    }, []); // No dependencies needed for useCallback if getCurrentMonth is stable or not used in its closure
 
     const saveBudget = async (monthlyLimit, month = getCurrentMonth()) => {
         try {
@@ -46,12 +46,14 @@ export function BudgetProvider({ children }) {
         const token = localStorage.getItem("token");
         if (!token) return;
 
+        const currentMonth = getCurrentMonth(); // Get current month once per effect run
+
         const interval = setInterval(() => {
-            fetchBudget(getCurrentMonth(), true);
+            fetchBudget(currentMonth, true);
         }, AUTO_REFRESH_INTERVAL);
 
         return () => clearInterval(interval);
-    }, [fetchBudget]);
+    }, [fetchBudget]); // fetchBudget is a stable useCallback, so it's safe here. getCurrentMonth is not a dependency as it's called inside the effect.
 
     return (
         <BudgetContext.Provider

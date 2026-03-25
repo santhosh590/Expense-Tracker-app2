@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { formatCurrency } from "../utils/formatCurrency";
 import {
-    Plus, Trash2, Users, CheckCircle, Circle, X,
+    Plus, Trash2, Users, CheckCircle, X,
     CreditCard, Receipt, Wallet, ArrowRight, Sparkles,
-    UserPlus, DollarSign, PieChart, Clock, TrendingUp
+    UserPlus, DollarSign, PieChart, Clock, TrendingUp,
+    ShoppingCart, Tag, List, Store, Utensils
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -26,12 +27,57 @@ const AVATARS_COLORS = [
     "linear-gradient(135deg, #14b8a6, #06b6d4)",
 ];
 
+const RESTAURANT_MENUS = [
+    {
+        id: "dominos", name: "Domino's Pizza", icon: "🍕", color: "#e31837",
+        items: [
+            { name: "Margherita Pizza", price: 150 },
+            { name: "Peppy Paneer Pizza", price: 250 },
+            { name: "Farmhouse Pizza", price: 300 },
+            { name: "Garlic Breadsticks", price: 100 },
+            { name: "Choco Lava Cake", price: 110 }
+        ]
+    },
+    {
+        id: "kfc", name: "KFC", icon: "🍗", color: "#e02020",
+        items: [
+            { name: "Zinger Burger", price: 180 },
+            { name: "Hot Wings (4pc)", price: 150 },
+            { name: "Chicken Popcorn", price: 120 },
+            { name: "French Fries", price: 100 },
+            { name: "Pepsi", price: 60 }
+        ]
+    },
+    {
+        id: "starbucks", name: "Starbucks", icon: "☕", color: "#00704a",
+        items: [
+            { name: "Caramel Macchiato", price: 280 },
+            { name: "Java Chip Frappuccino", price: 320 },
+            { name: "Iced Americano", price: 220 },
+            { name: "Butter Croissant", price: 180 },
+            { name: "Blueberry Muffin", price: 200 }
+        ]
+    },
+    {
+        id: "local_cafe", name: "Local Cafe", icon: "🥪", color: "#d97706",
+        items: [
+            { name: "Club Sandwich", price: 150 },
+            { name: "Cold Coffee", price: 120 },
+            { name: "Masala Chai", price: 40 },
+            { name: "Samosa (2pc)", price: 50 },
+            { name: "Paneer Wrap", price: 130 }
+        ]
+    }
+];
+
 export default function SplitExpenses() {
     const [splits, setSplits] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [showMenuBrowser, setShowMenuBrowser] = useState(false);
+    const [selectedRestaurant, setSelectedRestaurant] = useState(null);
     const [form, setForm] = useState({
         title: "", totalAmount: "", paidBy: "", category: "Food",
-        participantName: "", participants: [],
+        participantName: "", participants: [], items: [], itemName: "", itemPrice: "",
     });
     const [msg, setMsg] = useState("");
 
@@ -39,6 +85,41 @@ export default function SplitExpenses() {
 
     const fetchSplits = async () => {
         try { const res = await api.get("/splits"); setSplits(res.data); } catch (err) { console.error(err); }
+    };
+
+    const addItem = () => {
+        if (!form.itemName.trim() || !form.itemPrice) return;
+        const newItems = [...form.items, { name: form.itemName.trim(), amount: Number(form.itemPrice) }];
+        const newTotal = newItems.reduce((acc, obj) => acc + obj.amount, 0);
+        const equalShare = newItems.length > 0 && form.participants.length > 0 ? newTotal / form.participants.length : (form.totalAmount && form.participants.length > 0 ? form.totalAmount / form.participants.length : 0);
+        setForm({
+            ...form, items: newItems, itemName: "", itemPrice: "", 
+            totalAmount: newTotal,
+            participants: form.participants.map(p => ({ ...p, share: Math.round(equalShare * 100) / 100 }))
+        });
+    };
+
+    const addMenuItem = (item) => {
+        const newItems = [...form.items, { name: item.name, amount: item.price }];
+        const newTotal = newItems.reduce((acc, obj) => acc + obj.amount, 0);
+        const equalShare = newItems.length > 0 && form.participants.length > 0 ? newTotal / form.participants.length : (form.totalAmount && form.participants.length > 0 ? form.totalAmount / form.participants.length : 0);
+        setForm({
+            ...form, items: newItems,
+            totalAmount: newTotal,
+            participants: form.participants.map(p => ({ ...p, share: Math.round(equalShare * 100) / 100 }))
+        });
+        setMsg(`✅ Added ${item.name} to receipt!`);
+        setTimeout(() => setMsg(""), 2000);
+    };
+
+    const removeItem = (idx) => {
+        const newItems = form.items.filter((_, i) => i !== idx);
+        const newTotal = newItems.length > 0 ? newItems.reduce((acc, obj) => acc + obj.amount, 0) : form.totalAmount;
+        const equalShare = form.participants.length > 0 ? newTotal / form.participants.length : 0;
+        setForm({
+            ...form, items: newItems, totalAmount: newTotal,
+            participants: form.participants.map(p => ({ ...p, share: Math.round(equalShare * 100) / 100 }))
+        });
     };
 
     const addParticipant = () => {
@@ -68,8 +149,9 @@ export default function SplitExpenses() {
                 title: form.title, totalAmount: Number(form.totalAmount),
                 paidBy: form.paidBy, category: form.category,
                 participants: form.participants.map((p) => ({ name: p.name, share: p.share })),
+                items: form.items?.map(i => ({ name: i.name, amount: i.amount })) || []
             });
-            setForm({ title: "", totalAmount: "", paidBy: "", category: "Food", participantName: "", participants: [] });
+            setForm({ title: "", totalAmount: "", paidBy: "", category: "Food", participantName: "", participants: [], items: [], itemName: "", itemPrice: "" });
             setShowForm(false); fetchSplits();
             setMsg("✅ Split created successfully!"); setTimeout(() => setMsg(""), 3000);
         } catch (err) { setMsg("❌ Failed to create split"); }
@@ -251,9 +333,151 @@ export default function SplitExpenses() {
                             </div>
                         </div>
 
+                        {/* Itemized Menu List */}
+                        <div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                                <label className="label" style={{ display: "flex", alignItems: "center", gap: 6, margin: 0 }}>
+                                    <ShoppingCart size={12} style={{ color: "var(--muted)" }} /> Items (Menu List)
+                                </label>
+                                <button type="button" onClick={() => setShowMenuBrowser(!showMenuBrowser)}
+                                    style={{
+                                        padding: "6px 12px", borderRadius: 10, cursor: "pointer",
+                                        background: showMenuBrowser ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.05)",
+                                        border: `1px solid ${showMenuBrowser ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.1)"}`,
+                                        color: showMenuBrowser ? "#818cf8" : "var(--muted)",
+                                        fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", gap: 6,
+                                        transition: "all 0.2s"
+                                    }}>
+                                    <Store size={12} /> {showMenuBrowser ? "Close Menus" : "Browse Menus"}
+                                </button>
+                            </div>
+                            <div style={{ display: "flex", gap: 8 }}>
+                                <input className="input" value={form.itemName}
+                                    onChange={(e) => setForm({ ...form, itemName: e.target.value })}
+                                    placeholder="Product name (e.g. Pizza)" style={{ flex: 2, padding: "12px 16px", borderRadius: 14 }}
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addItem(); } }}
+                                />
+                                <input className="input" type="number" value={form.itemPrice}
+                                    onChange={(e) => setForm({ ...form, itemPrice: e.target.value })}
+                                    placeholder="Amount" style={{ flex: 1, padding: "12px 16px", borderRadius: 14 }}
+                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addItem(); } }}
+                                    min="1"
+                                />
+                                <button type="button" onClick={addItem}
+                                    style={{
+                                        padding: "12px 20px", borderRadius: 14, cursor: "pointer",
+                                        background: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(249,115,22,0.08))",
+                                        border: "1px solid rgba(245,158,11,0.2)",
+                                        color: "#f59e0b", fontWeight: 700, fontSize: 13,
+                                        display: "flex", alignItems: "center", gap: 6,
+                                        transition: "all 0.2s",
+                                    }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, #f59e0b, #f97316)"; e.currentTarget.style.color = "white"; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(249,115,22,0.08))"; e.currentTarget.style.color = "#f59e0b"; }}
+                                >
+                                    <Plus size={14} /> Add
+                                </button>
+                            </div>
+
+                            {/* Menu Browser UI */}
+                            {showMenuBrowser && (
+                                <div style={{
+                                    marginTop: 12, padding: "16px", borderRadius: 16,
+                                    background: "rgba(0,0,0,0.15)", border: "1px solid var(--border)",
+                                }}>
+                                    {!selectedRestaurant ? (
+                                        <>
+                                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                                                <Store size={14} style={{ color: "#818cf8" }}/> Select a Restaurant
+                                            </div>
+                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                                {RESTAURANT_MENUS.map(rest => (
+                                                    <div key={rest.id} onClick={() => setSelectedRestaurant(rest)}
+                                                        style={{
+                                                            padding: "12px", borderRadius: 12, background: "var(--glass)",
+                                                            border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
+                                                            display: "flex", alignItems: "center", gap: 10, transition: "all 0.2s"
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.borderColor = rest.color; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.background = "var(--glass)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)"; }}
+                                                    >
+                                                        <div style={{ fontSize: 24 }}>{rest.icon}</div>
+                                                        <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)", lineHeight: 1.2 }}>{rest.name}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                                    <div style={{ fontSize: 20 }}>{selectedRestaurant.icon}</div>
+                                                    <div style={{ fontWeight: 800, fontSize: 15, color: "var(--text)" }}>{selectedRestaurant.name}</div>
+                                                </div>
+                                                <button type="button" onClick={() => setSelectedRestaurant(null)}
+                                                    style={{
+                                                        padding: "4px 10px", borderRadius: 8, background: "rgba(255,255,255,0.1)",
+                                                        border: "none", color: "white", fontSize: 11, cursor: "pointer", fontWeight: 700
+                                                    }}>
+                                                    ← Back
+                                                </button>
+                                            </div>
+                                            <div style={{ display: "grid", gap: 8 }}>
+                                                {selectedRestaurant.items.map((item, idx) => (
+                                                    <div key={idx} onClick={() => addMenuItem(item)}
+                                                        style={{
+                                                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                                                            padding: "12px 14px", borderRadius: 10, background: "var(--glass)",
+                                                            border: "1px dashed rgba(255,255,255,0.1)", cursor: "pointer", transition: "all 0.2s"
+                                                        }}
+                                                        onMouseEnter={(e) => { e.currentTarget.style.transform = "translateX(4px)"; e.currentTarget.style.borderColor = "rgba(99,102,241,0.4)"; e.currentTarget.style.background = "rgba(99,102,241,0.05)"; }}
+                                                        onMouseLeave={(e) => { e.currentTarget.style.transform = "translateX(0)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.background = "var(--glass)"; }}
+                                                    >
+                                                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                                            <Utensils size={14} style={{ color: "var(--muted)" }} />
+                                                            <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text)" }}>{item.name}</div>
+                                                        </div>
+                                                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                                            <div style={{ fontWeight: 800, fontSize: 14, color: selectedRestaurant.color }}>{formatCurrency(item.price)}</div>
+                                                            <div style={{ width: 24, height: 24, borderRadius: "50%", background: "rgba(99,102,241,0.15)", color: "#818cf8", display: "flex", alignItems: "center", justifyContent: "center" }}><Plus size={12}/></div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {form.items && form.items.length > 0 && (
+                                <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+                                    {form.items.map((item, i) => (
+                                        <div key={i} style={{
+                                            display: "flex", justifyContent: "space-between", alignItems: "center",
+                                            padding: "10px 16px", borderRadius: 12,
+                                            background: "rgba(245,158,11,0.04)", border: "1px dashed rgba(245,158,11,0.2)",
+                                        }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                                <Tag size={14} style={{ color: "#f59e0b" }} />
+                                                <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{item.name}</div>
+                                            </div>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                                <div style={{ fontWeight: 800, fontSize: 14, color: "#f59e0b" }}>{formatCurrency(item.amount)}</div>
+                                                <div onClick={() => removeItem(i)}
+                                                    style={{ cursor: "pointer", opacity: 0.4, color: "#ef4444" }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                                                    onMouseLeave={(e) => e.currentTarget.style.opacity = 0.4}
+                                                ><Trash2 size={14} /></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         {/* Participants */}
                         <div>
-                            <label className="label" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                            <label className="label" style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, marginTop: 12 }}>
                                 <UserPlus size={12} style={{ color: "var(--muted)" }} /> Participants
                             </label>
                             <div style={{ display: "flex", gap: 8 }}>
@@ -508,8 +732,34 @@ export default function SplitExpenses() {
                                 </div>
                             </div>
 
+                            {/* Itemized Menu List */}
+                            {s.items && s.items.length > 0 && (
+                                <div style={{ marginTop: 24, marginBottom: 12 }}>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                                        <List size={14} style={{ color: catColor }} />
+                                        <span style={{ fontSize: 12, fontWeight: 800, color: "var(--text)", textTransform: "uppercase", letterSpacing: 0.5 }}>Menu Order</span>
+                                    </div>
+                                    <div style={{ display: "grid", gap: 8, padding: "16px 20px", borderRadius: 16, background: "var(--glass)", border: "1px dashed var(--border)" }}>
+                                        {s.items.map((item, idx) => (
+                                            <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: idx !== s.items.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none", paddingBottom: idx !== s.items.length - 1 ? 8 : 0 }}>
+                                                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>{item.name}</div>
+                                                <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>{formatCurrency(item.amount)}</div>
+                                            </div>
+                                        ))}
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "2px dashed rgba(255,255,255,0.1)", marginTop: 4 }}>
+                                            <div style={{ fontSize: 13, fontWeight: 800, color: "var(--muted)" }}>Total Amount</div>
+                                            <div style={{ fontSize: 15, fontWeight: 900, color: catColor }}>{formatCurrency(s.totalAmount)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Participants */}
                             <div style={{ display: "grid", gap: 8, marginTop: 16 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                                    <Users size={14} style={{ color: "var(--muted)" }} />
+                                    <span style={{ fontSize: 12, fontWeight: 800, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5 }}>Split Details</span>
+                                </div>
                                 {s.participants.map((p, idx) => (
                                     <div key={p._id} style={{
                                         display: "flex", justifyContent: "space-between", alignItems: "center",

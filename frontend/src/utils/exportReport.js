@@ -1,9 +1,12 @@
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-// Format currency for display
-const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
+// Use ASCII safe formatting for PDF to avoid jsPDF unicode scrambling
+const fmt = (n) => {
+    if (!n) return "Rs. 0";
+    return "Rs. " + Number(n).toLocaleString("en-IN", { maximumFractionDigits: 0 });
+};
 
 // Format date for display
 const fmtDate = (d) =>
@@ -55,7 +58,7 @@ export function exportPDF(transactions) {
     doc.text(`Balance: ${fmt(income - expense)}`, 14, 52);
 
     // Table
-    doc.autoTable({
+    autoTable(doc, {
         startY: 60,
         head: [HEADERS],
         body: buildRows(transactions),

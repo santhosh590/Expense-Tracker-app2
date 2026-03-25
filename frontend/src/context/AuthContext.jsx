@@ -5,8 +5,14 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      return null;
+    }
   });
 
   const login = async (email, password) => {
@@ -19,14 +25,6 @@ export function AuthProvider({ children }) {
 
   const register = async (name, email, password) => {
     const res = await api.post("/auth/register", { name, email, password });
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data));
-    setUser(res.data);
-    return res.data;
-  };
-
-  const googleLogin = async (credential) => {
-    const res = await api.post("/auth/google", { credential });
     localStorage.setItem("token", res.data.token);
     localStorage.setItem("user", JSON.stringify(res.data));
     setUser(res.data);
@@ -65,7 +63,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, googleLogin, logout, updateUser, uploadAvatar, changePassword }}>
+    <AuthContext.Provider value={{ user, login, register, logout, updateUser, uploadAvatar, changePassword }}>
       {children}
     </AuthContext.Provider>
   );

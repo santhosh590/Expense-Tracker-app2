@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 
-const formatCurrency = (v) => "₹" + Number(v || 0).toLocaleString("en-IN");
+import { formatCurrency } from "../../utils/formatCurrency";
 
 function useTheme() {
   return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
@@ -95,7 +95,7 @@ export default function BarChart({ transactions = [] }) {
           tickLine={{ stroke: lineColor }}
         />
         <YAxis
-          tickFormatter={(v) => "₹" + Number(v).toLocaleString("en-IN")}
+          tickFormatter={(v) => formatCurrency(v)}
           tick={{ fill: tickColor, fontSize: 12 }}
           axisLine={{ stroke: lineColor }}
           tickLine={{ stroke: lineColor }}

@@ -1,0 +1,56 @@
+﻿
+> frontend@0.1.0 build
+> react-scripts build
+
+Creating an optimized production build...
+
+Treating warnings as errors because process.env.CI = true.
+Most CI servers set it automatically.
+
+Failed to compile.
+
+[eslint] 
+src\components\charts\TrendChart.jsx
+  Line 5:5:  'LineChart' is defined but never used  no-unused-vars
+
+src\components\charts\WeeklyHeatmap.jsx
+  Line 4:10:  'Flame' is defined but never used  no-unused-vars
+
+src\components\common\Sidebar.jsx
+  Line 13:11:  'lastRefreshed' is assigned a value but never used  no-unused-vars
+
+src\components\common\ToastNotification.jsx
+  Line 1:20:  'useEffect' is defined but never used  no-unused-vars
+
+src\components\dashboard\AchievementBadges.jsx
+  Line 4:10:  'formatCurrency' is defined but never used  no-unused-vars
+
+src\components\dashboard\FinancialHealth.jsx
+  Line 1:59:  'Target' is defined but never used  no-unused-vars
+
+src\components\dashboard\SpendingInsights.jsx
+  Line 18:15:  'dayOfWeek' is assigned a value but never used  no-unused-vars
+
+src\components\dashboard\UpcomingBills.jsx
+  Line 4:37:  'AlertCircle' is defined but never used  no-unused-vars
+
+src\context\BudgetContext.jsx
+  Line 1:71:  'useRef' is defined but never used  no-unused-vars
+
+src\pages\Budget.jsx
+  Line 16:51:  React Hook useEffect has missing dependencies: 'currentMonth' and 'fetchBudget'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+src\pages\Dashboard.jsx
+  Line 29:6:  React Hook useEffect has missing dependencies: 'fetchBudget' and 'getCurrentMonth'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  Line 57:6:  React Hook useEffect has missing dependencies: 'addToast' and 'alertShown'. Either include them or remove the dependency array          react-hooks/exhaustive-deps
+
+src\pages\Profile.jsx
+  Line 23:11:  'budget' is assigned a value but never used  no-unused-vars
+
+src\pages\Reports.jsx
+  Line 10:10:  'Award' is defined but never used  no-unused-vars
+
+src\pages\Security.jsx
+  Line 14:11:  Unexpected empty object pattern  no-empty-pattern
+
+

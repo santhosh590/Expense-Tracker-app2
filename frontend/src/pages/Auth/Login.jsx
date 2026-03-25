@@ -1,23 +1,31 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
 
 import useAuth from "../../hooks/useAuth";
 import "../../styles/auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, googleLogin } = useAuth();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [shake, setShake] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.email || !form.password) {
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      setMsg({ type: "error", text: "Please enter both email and password." });
+      return;
+    }
     setMsg({ type: "", text: "" });
     setLoading(true);
     try {
@@ -31,20 +39,6 @@ export default function Login() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setMsg({ type: "", text: "" });
-    try {
-      await googleLogin(credentialResponse.credential);
-      setMsg({ type: "success", text: "Google login successful ✅" });
-      setTimeout(() => navigate("/dashboard"), 600);
-    } catch (err) {
-      setMsg({
-        type: "error",
-        text: err?.response?.data?.message || "Google login failed ❌",
-      });
     }
   };
 
@@ -92,47 +86,35 @@ export default function Login() {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
-                required
               />
             </div>
 
             <div className="auth-field">
               <label>Password</label>
-              <input
-                className="auth-input"
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="auth-input-group">
+                <input
+                  className="auth-input"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
-            <button className="auth-btn" type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <button className={`auth-btn ${shake ? "shake" : ""}`} type="submit" disabled={loading}>
+              {loading ? "Logging in..." : "Login 😊"}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="auth-divider">
-            <span>or continue with</span>
-          </div>
-
-          {/* Google Sign-In */}
-          <div className="auth-google-wrap">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() =>
-                setMsg({ type: "error", text: "Google sign-in failed ❌" })
-              }
-              theme="filled_black"
-              size="large"
-              width="100%"
-              text="signin_with"
-              shape="pill"
-            />
-          </div>
 
           {msg.text && <div className={`auth-msg ${msg.type}`}>{msg.text}</div>}
 

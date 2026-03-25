@@ -15,7 +15,6 @@ export default function SpendingInsights() {
         const thisYear = now.getFullYear();
         const dayOfMonth = now.getDate();
         const daysInMonth = new Date(thisYear, thisMonth + 1, 0).getDate();
-        const dayOfWeek = now.getDay();
 
         const expenses = transactions.filter(t => t.type === "expense");
         const incomes = transactions.filter(t => t.type === "income");

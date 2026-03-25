@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useContext } from "react";
+import { formatCurrency } from "../../utils/formatCurrency";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { TransactionContext } from "../../context/TransactionContext";
@@ -176,7 +177,7 @@ export default function Navbar() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>{tx.title || tx.category}</div>
                       <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 1 }}>
-                        {tx.type === "income" ? "+" : "-"}₹{Number(tx.amount).toLocaleString()} • {tx.category}
+                        {tx.type === "income" ? "+" : "-"} {formatCurrency(tx.amount)} • {tx.category}
                       </div>
                     </div>
                     <div style={{ fontSize: 10, color: "var(--muted)", flexShrink: 0, marginTop: 2 }}>

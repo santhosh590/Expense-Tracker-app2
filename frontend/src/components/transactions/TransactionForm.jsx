@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { TransactionContext } from "../../context/TransactionContext";
-import { RefreshCw, Tag, FileText, ChevronDown, ChevronRight, Sparkles } from "lucide-react";
+import { RefreshCw, Tag, FileText, ChevronDown, ChevronRight, Sparkles, Camera } from "lucide-react";
+import api from "../../services/api";
 
 export default function TransactionForm({ onAdd, defaultType }) {
   const { addTransaction } = useContext(TransactionContext);
@@ -22,6 +23,43 @@ export default function TransactionForm({ onAdd, defaultType }) {
       updated.category = e.target.value === "income" ? "Salary" : "Food";
     }
     setForm(updated);
+  };
+
+  const handleScanReceipt = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setLoading(true);
+      setMsg("⏳ Scanning receipt... this may take a few seconds");
+      
+      const res = await api.post("/upload/scan", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data.success) {
+        const { amount, date, title, notes } = res.data.data;
+        setForm(prev => ({
+          ...prev,
+          amount: amount || prev.amount,
+          date: date || prev.date,
+          title: title || prev.title,
+          notes: notes || prev.notes
+        }));
+        setMsg("✅ Receipt scanned successfully!");
+      } else {
+        setMsg("❌ " + res.data.message);
+      }
+    } catch (err) {
+      setMsg("❌ Failed to scan receipt.");
+    } finally {
+      setLoading(false);
+      e.target.value = "";
+      setTimeout(() => setMsg(""), 4000);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -67,8 +105,17 @@ export default function TransactionForm({ onAdd, defaultType }) {
           : "linear-gradient(90deg, #6366f1, #ec4899)",
       }} />
 
-      <div className="section-title" style={{ marginTop: 4 }}>
-        <Sparkles size={18} style={{ color: "#6366f1" }} /> Add Transaction
+      <div className="section-title" style={{ marginTop: 4, display: "flex", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <Sparkles size={18} style={{ color: "#6366f1" }} /> Add Transaction
+        </div>
+        <label
+          className="btn small secondary"
+          style={{ padding: "6px 12px", fontSize: 12, borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+        >
+          <Camera size={14} /> Scan Receipt
+          <input type="file" accept="image/*" onChange={handleScanReceipt} style={{ display: "none" }} />
+        </label>
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>

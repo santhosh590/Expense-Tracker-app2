@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "../services/api";
 import { formatCurrency } from "../utils/formatCurrency";
 import {
-    Target, Plus, Trash2, TrendingUp, Calendar, Sparkles, X
+    Plus, Trash2, TrendingUp, Calendar, Sparkles, X
 } from "lucide-react";
 
 const ICONS = ["🎯", "🏖️", "🚗", "🏠", "💻", "🎓", "💍", "🎁", "✈️", "📱", "🎮", "👗"];

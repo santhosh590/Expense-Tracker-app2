@@ -133,6 +133,43 @@ h6 {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.input option {
+  background: var(--bg2);
+  color: var(--text-main);
+}
+
+.input-group {
+  position: relative;
+  width: 100%;
+}
+
+.input.with-icon {
+  padding-right: 48px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  z-index: 5;
+}
+
+.password-toggle:hover {
+  color: var(--primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .label {
   display: block;
   font-size: 13px;

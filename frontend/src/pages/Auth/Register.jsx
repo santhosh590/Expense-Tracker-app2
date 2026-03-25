@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { GoogleLogin } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import "../../styles/auth.css";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register, googleLogin } = useAuth();
+  const { register } = useAuth();
 
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,20 +31,6 @@ export default function Register() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setMsg({ type: "", text: "" });
-    try {
-      await googleLogin(credentialResponse.credential);
-      setMsg({ type: "success", text: "Signed up with Google ✅" });
-      setTimeout(() => navigate("/dashboard"), 600);
-    } catch (err) {
-      setMsg({
-        type: "error",
-        text: err?.response?.data?.message || "Google sign-up failed ❌",
-      });
     }
   };
 
@@ -109,41 +96,31 @@ export default function Register() {
 
             <div className="auth-field">
               <label>Password</label>
-              <input
-                className="auth-input"
-                type="password"
-                name="password"
-                placeholder="Min 6 characters"
-                value={form.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="auth-input-group">
+                <input
+                  className="auth-input"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  placeholder="Min 6 characters"
+                  value={form.password}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button className="auth-btn" type="submit" disabled={loading}>
               {loading ? "Creating..." : "Register"}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="auth-divider">
-            <span>or sign up with</span>
-          </div>
-
-          {/* Google Sign-Up */}
-          <div className="auth-google-wrap">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() =>
-                setMsg({ type: "error", text: "Google sign-up failed ❌" })
-              }
-              theme="filled_black"
-              size="large"
-              width="100%"
-              text="signup_with"
-              shape="pill"
-            />
-          </div>
 
           {msg.text && <div className={`auth-msg ${msg.type}`}>{msg.text}</div>}
 

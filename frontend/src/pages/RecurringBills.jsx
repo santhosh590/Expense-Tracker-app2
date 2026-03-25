@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { formatCurrency } from "../utils/formatCurrency";
 import api from "../services/api";
 import {
     RefreshCw, Plus, Calendar, Clock, DollarSign, Bell, CreditCard,
@@ -133,7 +134,7 @@ export default function RecurringBills() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 24 }}>
                 {[
                     { label: "Active Items", value: items.filter(i => i.isActive).length, icon: <RefreshCw size={18} />, color: "#6366f1" },
-                    { label: "Monthly Total", value: `₹${Math.round(totalMonthly).toLocaleString()}`, icon: <DollarSign size={18} />, color: "#22c55e" },
+                    { label: "Monthly Total", value: formatCurrency(totalMonthly), icon: <DollarSign size={18} />, color: "#22c55e" },
                     { label: "Due This Week", value: upcomingCount, icon: <Calendar size={18} />, color: "#f59e0b" },
                     { label: "Overdue", value: overdueCount, icon: <AlertTriangle size={18} />, color: "#ef4444" },
                 ].map((s, i) => (
@@ -256,7 +257,7 @@ export default function RecurringBills() {
                                     <div style={{
                                         fontWeight: 900, fontSize: 18,
                                         color: item.type === "income" ? "#22c55e" : "#ef4444",
-                                    }}>{item.type === "income" ? "+" : "-"}₹{item.amount.toLocaleString()}</div>
+                                    }}>{item.type === "income" ? "+" : "-"} {formatCurrency(item.amount)}</div>
                                     <button onClick={() => handlePay(item._id)} style={{
                                         padding: "8px 14px", borderRadius: 10, cursor: "pointer", border: "none",
                                         background: "rgba(34,197,94,0.08)", color: "#22c55e", fontWeight: 700, fontSize: 11,

@@ -3,15 +3,15 @@ import useAuth from "../hooks/useAuth";
 import api from "../services/api";
 import {
     Shield, Fingerprint, Smartphone, Key, Lock,
-    Monitor, Clock, Globe, AlertTriangle, ChevronRight,
-    CheckCircle, XCircle, Eye, EyeOff, LogOut,
+    Monitor, Clock, Globe,
+    CheckCircle, XCircle, Eye, LogOut,
     Activity, Laptop, MapPin, RefreshCw, ShieldCheck,
-    Database, Server, FileKey, Zap, ShieldAlert, Info,
+    Database, Server, FileKey, ShieldAlert, Info,
     Loader
 } from "lucide-react";
 
 export default function Security() {
-    const { user } = useAuth();
+    useAuth();
 
     // Loading states
     const [loading, setLoading] = useState(true);
@@ -55,7 +55,11 @@ export default function Security() {
             const res = await api.get("/security/status");
             setSecStatus(res.data);
             setSessionTimeout(res.data.sessionTimeout);
-            if (res.data.biometricType) setBiometricType(res.data.biometricType);
+            if (res.data.biometricType) {
+                setBiometricType(res.data.biometricType);
+            } else if (res.data.biometricEnabled) {
+                setBiometricType("fingerprint"); // Default if somehow missing
+            }
         } catch (err) {
             console.error("Failed to fetch security status:", err);
         }
@@ -152,18 +156,24 @@ export default function Security() {
         setActionLoading("biometric");
         try {
             const newEnabled = !secStatus.biometricEnabled;
+            // Send request to backend
             const res = await api.put("/security/biometric", {
                 enabled: newEnabled,
-                type: newEnabled ? biometricType : "",
+                type: newEnabled ? (biometricType || "fingerprint") : "",
             });
+            // Immediately reflect in UI
             setSecStatus(prev => ({
                 ...prev,
                 biometricEnabled: res.data.biometricEnabled,
                 biometricType: res.data.biometricType,
             }));
+            
+            setBiometricType(res.data.biometricType || "fingerprint");
+            
             showMsg(newEnabled ? "✅ Biometric login enabled" : "✅ Biometric login disabled");
             fetchActivityLogs(activityFilter);
         } catch (err) {
+            console.error("Biometric Toggle Error:", err.response?.data || err.message);
             showMsg("❌ Failed to update biometric settings");
         }
         setActionLoading("");
@@ -481,22 +491,22 @@ export default function Security() {
                     }}>
                         <div style={{
                             position: "absolute", top: 0, left: 0, width: 4, height: "100%",
-                            background: biometric ? "#6366f1" : "var(--border)",
+                            background: secStatus.biometricEnabled ? "#6366f1" : "var(--border)",
                         }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                                 <div style={{
                                     width: 42, height: 42, borderRadius: 12,
-                                    background: biometric ? "rgba(99,102,241,0.1)" : "var(--glass)",
+                                    background: secStatus.biometricEnabled ? "rgba(99,102,241,0.1)" : "var(--glass)",
                                     display: "flex", alignItems: "center", justifyContent: "center",
-                                    border: `1px solid ${biometric ? "rgba(99,102,241,0.15)" : "var(--border)"}`,
+                                    border: `1px solid ${secStatus.biometricEnabled ? "rgba(99,102,241,0.15)" : "var(--border)"}`,
                                 }}>
-                                    <Fingerprint size={20} style={{ color: biometric ? "#6366f1" : "var(--muted)" }} />
+                                    <Fingerprint size={20} style={{ color: secStatus.biometricEnabled ? "#6366f1" : "var(--muted)" }} />
                                 </div>
                                 <div>
                                     <div style={{ fontWeight: 800, fontSize: 16, color: "var(--text)" }}>Biometric Login</div>
                                     <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>
-                                        {biometric ? "🔓 Quick access enabled" : "Use fingerprint or face recognition"}
+                                        {secStatus.biometricEnabled ? "🔓 Quick access enabled" : "Use fingerprint or face recognition"}
                                     </div>
                                 </div>
                             </div>
@@ -505,14 +515,14 @@ export default function Security() {
                                 style={{
                                     width: 52, height: 28, borderRadius: 14,
                                     cursor: actionLoading ? "wait" : "pointer",
-                                    background: biometric ? "#6366f1" : "var(--glass)",
-                                    border: `1px solid ${biometric ? "#6366f1" : "var(--border)"}`,
+                                    background: secStatus.biometricEnabled ? "#6366f1" : "var(--glass)",
+                                    border: `1px solid ${secStatus.biometricEnabled ? "#6366f1" : "var(--border)"}`,
                                     position: "relative", transition: "all 0.3s",
                                     opacity: actionLoading === "biometric" ? 0.5 : 1,
                                 }}>
                                 <div style={{
                                     width: 22, height: 22, borderRadius: "50%", position: "absolute", top: 2,
-                                    left: biometric ? 27 : 2, background: "white",
+                                    left: secStatus.biometricEnabled ? 27 : 2, background: "white",
                                     transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                                 }} />
@@ -527,14 +537,14 @@ export default function Security() {
                                 { id: "iris", label: "Iris Scan", icon: <Globe size={20} />, color: "#3b82f6" },
                             ].map(b => (
                                 <div key={b.id}
-                                    onClick={() => biometric && handleBiometricTypeChange(b.id)}
+                                    onClick={() => secStatus.biometricEnabled && handleBiometricTypeChange(b.id)}
                                     style={{
-                                        padding: "18px 12px", borderRadius: 16, cursor: biometric ? "pointer" : "default",
+                                        padding: "18px 12px", borderRadius: 16, cursor: secStatus.biometricEnabled ? "pointer" : "default",
                                         textAlign: "center",
                                         background: biometricType === b.id ? `${b.color}08` : "var(--glass)",
                                         border: `2px solid ${biometricType === b.id ? b.color : "var(--border)"}`,
-                                        transition: "all 0.2s", opacity: biometric ? 1 : 0.4,
-                                        pointerEvents: biometric ? "auto" : "none",
+                                        transition: "all 0.2s", opacity: secStatus.biometricEnabled ? 1 : 0.4,
+                                        pointerEvents: secStatus.biometricEnabled ? "auto" : "none",
                                     }}
                                     onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; }}
                                     onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; }}

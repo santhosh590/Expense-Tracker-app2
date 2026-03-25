@@ -38,7 +38,12 @@ app.get("/", (req, res) => {
   res.send("Expense Tracker Backend Running...");
 });
 
+import userRoutes from "./routes/userRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/budget", budgetRoutes);
 app.use("/api/reports", reportRoutes);

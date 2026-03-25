@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import {
   LayoutDashboard, Receipt, BarChart3, Wallet, User as UserIcon,
-  Target, CalendarDays, Users, Wifi, WifiOff, Shield
+  Target, CalendarDays, Users, Wifi, WifiOff, Shield, Sparkles
 } from "lucide-react";
 import useAuth from "../../hooks/useAuth";
 import { TransactionContext } from "../../context/TransactionContext";
@@ -10,7 +10,7 @@ import { TransactionContext } from "../../context/TransactionContext";
 export default function Sidebar() {
   const location = useLocation();
   const { user } = useAuth();
-  const { lastRefreshed, isRefreshing } = useContext(TransactionContext);
+  const { isRefreshing } = useContext(TransactionContext);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -24,6 +24,7 @@ export default function Sidebar() {
     { name: "Transactions", path: "/transactions", icon: <Receipt size={20} /> },
     { name: "Calendar", path: "/calendar", icon: <CalendarDays size={20} /> },
     { name: "Reports", path: "/reports", icon: <BarChart3 size={20} /> },
+    { name: "AI Advisor", path: "/ai-advisor", icon: <Sparkles size={20} /> },
     { name: "Budget", path: "/budget", icon: <Wallet size={20} /> },
     { name: "Savings Goals", path: "/savings", icon: <Target size={20} /> },
     { name: "Split Bills", path: "/split", icon: <Users size={20} /> },

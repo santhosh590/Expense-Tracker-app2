@@ -10,7 +10,7 @@ import {
   Calendar, Edit3, Save, X, Palette, Globe, BadgeCheck,
   Camera, Lock, ChevronRight, Sparkles, Upload, Flame,
   PiggyBank, Target, Clock, Award, Zap, BarChart3,
-  LogOut, Bell, Heart, Star
+  LogOut, Bell, Heart, Star, Eye, EyeOff
 } from "lucide-react";
 
 const API_BASE = "http://localhost:5001";
@@ -20,7 +20,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { transactions } = useContext(TransactionContext);
-  const { budget } = useBudget();
+  useBudget();
   const fileInputRef = useRef(null);
 
   const [editing, setEditing] = useState(false);
@@ -38,6 +38,7 @@ export default function Profile() {
 
   // Modal states
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showPw, setShowPw] = useState({ current: false, new: false, confirm: false });
   const [showNotifModal, setShowNotifModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showSubModal, setShowSubModal] = useState(false);
@@ -202,12 +203,10 @@ export default function Profile() {
         background: "var(--card)", border: "1px solid var(--border)",
         position: "relative",
       }}>
-        {/* Animated gradient banner */}
+        {/* Nature Background Hero Banner */}
         <div style={{
           height: 160, position: "relative",
-          background: "linear-gradient(135deg, #1a1035 0%, #2d1b69 20%, #6366f1 40%, #a855f7 55%, #ec4899 70%, #f59e0b 85%, #22c55e 100%)",
-          backgroundSize: "300% 300%",
-          animation: "gradientShift 8s ease infinite",
+          background: "url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&h=300&q=80') center/cover no-repeat",
         }}>
           {/* Overlay pattern */}
           <div style={{
@@ -552,8 +551,16 @@ export default function Profile() {
                   <label style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
                     <Globe size={12} /> Currency
                   </label>
-                  <select className="input" style={{ cursor: "pointer", borderRadius: 12, padding: "12px 14px" }}>
-                    <option>INR (₹)</option><option>USD ($)</option><option>EUR (€)</option><option>GBP (£)</option>
+                  <select 
+                    className="input" 
+                    value={user?.baseCurrency || "INR"}
+                    onChange={(e) => updateUser({ baseCurrency: e.target.value })}
+                    style={{ cursor: "pointer", borderRadius: 12, padding: "12px 14px" }}
+                  >
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
                   </select>
                 </div>
                 <div>
@@ -691,7 +698,24 @@ export default function Profile() {
               {[{ label: "Current Password", key: "current" }, { label: "New Password", key: "new" }, { label: "Confirm New Password", key: "confirm" }].map(f => (
                 <div key={f.key}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6, display: "block" }}>{f.label}</label>
-                  <input type="password" className="input" value={pwForm[f.key]} onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })} style={{ borderRadius: 12, padding: "12px 14px", width: "100%", boxSizing: "border-box" }} placeholder={f.label} />
+                  <div className="input-group">
+                    <input
+                      type={showPw[f.key] ? "text" : "password"}
+                      className="input with-icon"
+                      value={pwForm[f.key]}
+                      onChange={e => setPwForm({ ...pwForm, [f.key]: e.target.value })}
+                      style={{ borderRadius: 12, padding: "12px 14px", width: "100%", boxSizing: "border-box" }}
+                      placeholder={f.label}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setShowPw(s => ({ ...s, [f.key]: !s[f.key] }))}
+                      style={{ color: "var(--muted)", top: "50%" }}
+                    >
+                      {showPw[f.key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -728,7 +752,16 @@ export default function Profile() {
                     <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>{item.label}</div>
                     <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{item.desc}</div>
                   </div>
-                  <div onClick={() => setNotifSettings(s => ({ ...s, [item.key]: !s[item.key] }))} style={{ width: 44, height: 24, borderRadius: 12, background: notifSettings[item.key] ? "#22c55e" : "var(--border)", cursor: "pointer", position: "relative", transition: "all 0.3s" }}>
+                  <div onClick={() => {
+                      if (item.key === "push" && !notifSettings.push) {
+                          if ("Notification" in window) {
+                              Notification.requestPermission().then(perm => {
+                                  if (perm === "granted") new Notification("ExpenseTracker", { body: "Push alerts enabled! 🚀" });
+                              });
+                          }
+                      }
+                      setNotifSettings(s => ({ ...s, [item.key]: !s[item.key] }));
+                  }} style={{ width: 44, height: 24, borderRadius: 12, background: notifSettings[item.key] ? "#22c55e" : "var(--border)", cursor: "pointer", position: "relative", transition: "all 0.3s" }}>
                     <div style={{ width: 18, height: 18, borderRadius: "50%", background: "white", position: "absolute", top: 3, left: notifSettings[item.key] ? 23 : 3, transition: "all 0.3s", boxShadow: "0 2px 4px rgba(0,0,0,0.2)" }} />
                   </div>
                 </div>

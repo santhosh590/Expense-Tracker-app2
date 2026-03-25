@@ -13,7 +13,7 @@ export default function Budget() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
-  useEffect(() => { fetchBudget(currentMonth); }, []);
+  useEffect(() => { fetchBudget(currentMonth); }, [fetchBudget, currentMonth]);
   useEffect(() => { if (budget !== null) setInputBudget(budget.toString()); }, [budget]);
 
   const now = new Date();

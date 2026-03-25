@@ -1,15 +1,13 @@
 import { useContext, useState, useMemo } from "react";
 import PieChart from "../components/charts/PieChart";
 import BarChart from "../components/charts/BarChart";
-import TrendChart from "../components/charts/TrendChart";
 import WeeklyHeatmap from "../components/charts/WeeklyHeatmap";
 import { TransactionContext } from "../context/TransactionContext";
 import { formatCurrency } from "../utils/formatCurrency";
 import { exportPDF, exportExcel, exportCSV } from "../utils/exportReport";
 import {
-  FileDown, TrendingUp, TrendingDown, BarChart3, PieChartIcon,
-  ArrowUpRight, ArrowDownRight, Calendar, DollarSign, Target,
-  Flame, Award, Clock
+  ArrowUpRight, ArrowDownRight, Calendar, Target, BarChart3,
+  Flame
 } from "lucide-react";
 
 export default function Reports() {

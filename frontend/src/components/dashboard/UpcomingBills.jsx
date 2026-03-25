@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { TransactionContext } from "../../context/TransactionContext";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { Bell, Calendar, RefreshCw, AlertCircle } from "lucide-react";
+import { Bell, Calendar, RefreshCw } from "lucide-react";
 
 export default function UpcomingBills() {
     const { transactions } = useContext(TransactionContext);

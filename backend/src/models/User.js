@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 30,
     },
+    baseCurrency: {
+      type: String,
+      default: "INR", // Default currency
+    },
   },
   {
     timestamps: true,

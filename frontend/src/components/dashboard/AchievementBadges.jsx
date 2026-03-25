@@ -1,7 +1,6 @@
 import { useContext, useMemo } from "react";
 import { TransactionContext } from "../../context/TransactionContext";
 import { useBudget } from "../../context/BudgetContext";
-import { formatCurrency } from "../../utils/formatCurrency";
 import { Award, Flame, PiggyBank, Target, Zap, Shield, Star, Crown } from "lucide-react";
 
 const BADGE_DEFS = [

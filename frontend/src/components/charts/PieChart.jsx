@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { formatCurrency } from "../../utils/formatCurrency";
 import {
   ResponsiveContainer,
   PieChart as RePieChart,
@@ -12,8 +13,6 @@ const PIE_COLORS = [
   "#6366f1", "#a855f7", "#10b981", "#f59e0b",
   "#ef4444", "#ec4899", "#8b5cf6", "#06b6d4",
 ];
-
-const formatCurrency = (v) => "₹" + Number(v || 0).toLocaleString("en-IN");
 
 function CustomTooltip({ active, payload }) {
   if (!active || !payload || !payload.length) return null;
