@@ -77,7 +77,7 @@ export default function Navbar({ toggleSidebar }) {
         </button>
 
         <div className="hide-on-mobile" style={{ fontWeight: 900, letterSpacing: "-0.4px", fontSize: 18 }}>
-          🚀 ExpenseTracker
+          ExpenseTracker
         </div>
 
         {/* Search Bar */}
