@@ -17,12 +17,19 @@ export const registerUser = asyncHandler(async (req, res) => {
 });
 
 export const loginUser = asyncHandler(async (req, res) => {
-  const data = await loginService(req.body);
   try {
-    await createSession(data._id, req);
-    await logActivity(data._id, { action: "Login", detail: `Logged in successfully`, type: "auth", req });
-  } catch (e) { /* non-critical */ }
-  res.json(data);
+    const data = await loginService(req.body);
+    try {
+      await createSession(data._id, req);
+      await logActivity(data._id, { action: "Login", detail: `Logged in successfully`, type: "auth", req });
+    } catch (e) { /* non-critical */ }
+    res.json(data);
+  } catch (error) {
+    if (error.message === "Invalid credentials") {
+      res.status(401);
+    }
+    throw error;
+  }
 });
 
 export const getMe = asyncHandler(async (req, res) => {
