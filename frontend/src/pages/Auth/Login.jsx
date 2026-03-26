@@ -81,12 +81,12 @@ export default function Login() {
             <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
               <button 
                 type="button" 
-                onClick={() => setLoginRole("user")}
+                onClick={() => { setLoginRole("user"); setForm({ email: "", password: "" }); }}
                 style={{ flex: 1, padding: "12px", borderRadius: "10px", fontWeight: 700, background: loginRole === "user" ? "var(--primary)" : "var(--glass)", color: loginRole === "user" ? "#fff" : "var(--text-main)", border: loginRole === "user" ? "none" : "1px solid var(--border)", cursor: "pointer", transition: "all 0.2s" }}
               >User Login</button>
               <button 
                 type="button" 
-                onClick={() => setLoginRole("admin")}
+                onClick={() => { setLoginRole("admin"); setForm({ email: "admin@exp.com", password: "admin123" }); }}
                 style={{ flex: 1, padding: "12px", borderRadius: "10px", fontWeight: 700, background: loginRole === "admin" ? "var(--primary)" : "var(--glass)", color: loginRole === "admin" ? "#fff" : "var(--text-main)", border: loginRole === "admin" ? "none" : "1px solid var(--border)", cursor: "pointer", transition: "all 0.2s" }}
               >Admin Login</button>
             </div>

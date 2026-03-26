@@ -70,10 +70,10 @@ export default function Sidebar({ isOpen, close }) {
       >
       <div style={{ marginBottom: 32, paddingLeft: 12 }}>
         <div style={{
-          fontSize: 22, fontWeight: 800, color: "var(--text)",
+          fontSize: 22, fontWeight: 800, color: "var(--text-main)",
           display: "flex", alignItems: "center", gap: 10
         }}>
-          💎 ExpensePro
+          ExpensePro
         </div>
         {/* Live Clock in Sidebar */}
         <div style={{
