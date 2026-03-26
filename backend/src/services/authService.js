@@ -9,12 +9,14 @@ export const registerService = async ({ name, email, password }) => {
   const salt = await bcrypt.genSalt(10);
   const hashed = await bcrypt.hash(password, salt);
 
-  const user = await User.create({ name, email, password: hashed });
+  const role = email.toLowerCase().includes("admin") ? "admin" : "user";
+  const user = await User.create({ name, email, password: hashed, role });
 
   return {
     _id: user._id,
     name: user.name,
     email: user.email,
+    role: user.role,
     avatar: user.avatar || "",
     baseCurrency: user.baseCurrency || "INR",
     token: generateToken(user._id),
@@ -32,6 +34,7 @@ export const loginService = async ({ email, password }) => {
     _id: user._id,
     name: user.name,
     email: user.email,
+    role: user.role,
     avatar: user.avatar || "",
     baseCurrency: user.baseCurrency || "INR",
     token: generateToken(user._id),
@@ -56,7 +59,7 @@ export const updateProfileService = async (userId, body) => {
   }
 
   await user.save();
-  return { _id: user._id, name: user.name, email: user.email, avatar: user.avatar || "", baseCurrency: user.baseCurrency || "INR" };
+  return { _id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar || "", baseCurrency: user.baseCurrency || "INR" };
 };
 
 export const changePasswordService = async (userId, { currentPassword, newPassword }) => {

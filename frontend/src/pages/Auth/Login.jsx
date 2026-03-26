@@ -10,6 +10,7 @@ export default function Login() {
   const { login } = useAuth();
 
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loginRole, setLoginRole] = useState("user");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +30,9 @@ export default function Login() {
     setMsg({ type: "", text: "" });
     setLoading(true);
     try {
-      await login(form.email, form.password);
+      const data = await login(form.email, form.password);
       setMsg({ type: "success", text: "Login successful ✅" });
-      setTimeout(() => navigate("/dashboard"), 600);
+      setTimeout(() => navigate(data.role === "admin" ? "/admin" : "/dashboard"), 600);
     } catch (err) {
       setMsg({
         type: "error",
@@ -77,6 +78,19 @@ export default function Login() {
           <p className="auth-subtitle">Login to your account.</p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
+            <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+              <button 
+                type="button" 
+                onClick={() => setLoginRole("user")}
+                style={{ flex: 1, padding: "12px", borderRadius: "10px", fontWeight: 700, background: loginRole === "user" ? "var(--primary)" : "var(--glass)", color: loginRole === "user" ? "#fff" : "var(--text-main)", border: loginRole === "user" ? "none" : "1px solid var(--border)", cursor: "pointer", transition: "all 0.2s" }}
+              >User Login</button>
+              <button 
+                type="button" 
+                onClick={() => setLoginRole("admin")}
+                style={{ flex: 1, padding: "12px", borderRadius: "10px", fontWeight: 700, background: loginRole === "admin" ? "var(--primary)" : "var(--glass)", color: loginRole === "admin" ? "#fff" : "var(--text-main)", border: loginRole === "admin" ? "none" : "1px solid var(--border)", cursor: "pointer", transition: "all 0.2s" }}
+              >Admin Login</button>
+            </div>
+
             <div className="auth-field">
               <label>Email</label>
               <input

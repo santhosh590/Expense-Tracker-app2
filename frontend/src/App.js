@@ -14,6 +14,7 @@ import CalendarPage from "./pages/Calendar";
 import SplitExpenses from "./pages/SplitExpenses";
 import Security from "./pages/Security";
 import AiAdvisor from "./pages/AiAdvisor";
+import AdminDashboard from "./pages/AdminDashboard";
 
 import Sidebar from "./components/common/Sidebar";
 import Navbar from "./components/common/Navbar";
@@ -67,6 +68,9 @@ export default function App() {
         {/* Protected */}
         <Route path="/dashboard" element={
           <PrivateRoute><AppLayout><Dashboard /></AppLayout></PrivateRoute>
+        } />
+        <Route path="/admin" element={
+          <PrivateRoute><AppLayout><AdminDashboard /></AppLayout></PrivateRoute>
         } />
         <Route path="/transactions" element={
           <PrivateRoute><AppLayout><Transactions /></AppLayout></PrivateRoute>
