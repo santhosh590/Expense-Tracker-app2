@@ -27,4 +27,32 @@ router.delete("/users/:id", protect, admin, asyncHandler(async (req, res) => {
   }
 }));
 
+// Update user
+router.put("/users/:id", protect, admin, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.role = req.body.role || user.role;
+    
+    // Prevent removing your own admin status accidentally
+    if (req.user._id.toString() === user._id.toString() && req.body.role !== "admin") {
+      res.status(400);
+      throw new Error("You cannot strip your own admin privileges.");
+    }
+
+    const updatedUser = await user.save();
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      createdAt: updatedUser.createdAt,
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+}));
+
 export default router;
