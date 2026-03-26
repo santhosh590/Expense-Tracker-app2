@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 import { TransactionContext } from "../../context/TransactionContext";
 import { useBudget } from "../../context/BudgetContext";
+import { Menu } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ toggleSidebar }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const { transactions } = useContext(TransactionContext);
@@ -66,7 +67,16 @@ export default function Navbar() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 16, flex: 1 }}>
-        <div style={{ fontWeight: 900, letterSpacing: "-0.4px", fontSize: 18 }}>
+        {/* Hamburger Menu (Mobile) */}
+        <button 
+          className="hide-on-desktop" 
+          onClick={toggleSidebar}
+          style={{ background: "none", border: "none", color: "var(--text-main)", padding: "8px 0", cursor: "pointer", display: "flex" }}
+        >
+          <Menu size={26} />
+        </button>
+
+        <div className="hide-on-mobile" style={{ fontWeight: 900, letterSpacing: "-0.4px", fontSize: 18 }}>
           🚀 ExpenseTracker
         </div>
 

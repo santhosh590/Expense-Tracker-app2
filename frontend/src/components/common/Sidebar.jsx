@@ -7,7 +7,7 @@ import {
 import useAuth from "../../hooks/useAuth";
 import { TransactionContext } from "../../context/TransactionContext";
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, close }) {
   const location = useLocation();
   const { user } = useAuth();
   const { isRefreshing } = useContext(TransactionContext);
@@ -45,17 +45,29 @@ export default function Sidebar() {
   });
 
   return (
-    <div
-      className="sidebar"
-      style={{
-        width: 280, height: "100vh",
-        background: "var(--card-dark)",
-        borderRight: "1px solid var(--border)",
-        display: "flex", flexDirection: "column",
-        padding: "24px",
-        position: "sticky", top: 0
-      }}
-    >
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          onClick={close}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 998,
+            backdropFilter: "blur(4px)"
+          }}
+          className="hide-on-desktop"
+        />
+      )}
+      <div
+        className={`sidebar sidebar-container ${isOpen ? 'open' : ''}`}
+        style={{
+          width: 280, height: "100vh",
+          background: "var(--card-dark)",
+          borderRight: "1px solid var(--border)",
+          display: "flex", flexDirection: "column",
+          padding: "24px",
+          position: "sticky", top: 0
+        }}
+      >
       <div style={{ marginBottom: 32, paddingLeft: 12 }}>
         <div style={{
           fontSize: 22, fontWeight: 800, color: "var(--text)",
@@ -154,5 +166,6 @@ export default function Sidebar() {
         }
       `}</style>
     </div>
+    </>
   );
 }

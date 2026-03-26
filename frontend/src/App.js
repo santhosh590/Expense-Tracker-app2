@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
@@ -28,11 +28,18 @@ function PrivateRoute({ children }) {
 }
 
 function AppLayout({ children }) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="app-shell">
-      <Sidebar />
+      <Sidebar isOpen={isMobileOpen} close={() => setIsMobileOpen(false)} />
       <div className="main-area">
-        <Navbar />
+        <Navbar toggleSidebar={() => setIsMobileOpen(true)} />
         <div className="main-content">
           <PageTransition>{children}</PageTransition>
         </div>

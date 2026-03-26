@@ -14,17 +14,17 @@
 :root[data-theme="light"] {
   --bg-dark: #f8fafc;
   --card-dark: #ffffff;
-  --primary: #4f46e5;
-  --secondary: #9333ea;
+  --primary: #3b82f6; 
+  --secondary: #8b5cf6;
   --text-main: #0f172a;
   --text-muted: #64748b;
-  --border: rgba(0, 0, 0, 0.1);
-  --glass: rgba(255, 255, 255, 0.7);
+  --border: rgba(0, 0, 0, 0.06);
+  --glass: rgba(255, 255, 255, 0.85);
 }
 
 body {
   margin: 0;
-  font-family: 'Outfit', 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-dark);

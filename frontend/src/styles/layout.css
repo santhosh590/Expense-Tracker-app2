@@ -254,14 +254,47 @@ h6 {
 
 /* Responsive */
 @media (max-width: 1024px) {
-
   .grid-2,
-  .grid-3 {
+  .grid-3,
+  .grid-4 {
     grid-template-columns: 1fr;
   }
 
   .app-shell {
     grid-template-columns: 1fr;
+  }
+
+  /* Hamburger and Mobile Sidebar Support */
+  .sidebar-container {
+    position: fixed !important;
+    left: -300px;
+    top: 0;
+    bottom: 0;
+    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .sidebar-container.open {
+    transform: translateX(300px);
+  }
+
+  .main-content {
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+
+  .header-actions {
+    gap: 8px;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1025px) {
+  .hide-on-desktop {
+    display: none !important;
   }
 }
 
