@@ -56,7 +56,7 @@ h6 {
 .page-title {
   font-size: 28px;
   letter-spacing: -0.5px;
-  background: linear-gradient(to right, #fff, #9ca3af);
+  background: linear-gradient(to right, var(--text-main), var(--text-muted));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -13,6 +13,17 @@ export default function Navbar() {
   const [showNotif, setShowNotif] = useState(false);
   const notifRef = useRef(null);
 
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "light");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "light" ? "dark" : "light");
+  };
+
   // Close dropdown on outside click
   useEffect(() => {
     const handler = (e) => {
@@ -73,6 +84,22 @@ export default function Navbar() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: "none", border: "none", fontSize: 20,
+            cursor: "pointer", padding: 8, borderRadius: "50%",
+            color: "var(--muted)", transition: "all 0.2s",
+            display: "flex", alignItems: "center", justifyContent: "center"
+          }}
+          onMouseEnter={e => { e.currentTarget.style.color = "var(--primary)"; e.currentTarget.style.background = "var(--glass)"; }}
+          onMouseLeave={e => { e.currentTarget.style.color = "var(--muted)"; e.currentTarget.style.background = "none"; }}
+          title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
+        >
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
 
         {/* Notification Bell */}
         <div ref={notifRef} style={{ position: "relative" }}>
