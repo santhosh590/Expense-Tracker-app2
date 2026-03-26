@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Building2, CheckCircle2, ShieldCheck, Loader2, ArrowRight } from "lucide-react";
+import { X, Building2, CheckCircle2, ShieldCheck, ArrowRight } from "lucide-react";
 import api from "../../services/api";
 
 const BANKS = [

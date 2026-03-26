@@ -3,7 +3,7 @@ import { TransactionContext } from "../context/TransactionContext";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { formatCurrency } from "../utils/formatCurrency";
-import { Sparkles, Send, Bot, User, CornerDownLeft, Loader2, ArrowRight } from "lucide-react";
+import { Sparkles, Send, Bot, Loader2, ArrowRight } from "lucide-react";
 
 export default function AiAdvisor() {
   const { transactions } = useContext(TransactionContext);
