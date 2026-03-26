@@ -154,7 +154,6 @@ export default function Sidebar({ isOpen, close }) {
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600 }}>{user?.name || "User"}</div>
-            <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Premium User</div>
           </div>
         </div>
       </div>

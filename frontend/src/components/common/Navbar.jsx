@@ -266,7 +266,6 @@ export default function Navbar({ toggleSidebar }) {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: 13, fontWeight: 700 }}>{user?.name || "User"}</div>
-            <div style={{ fontSize: 11, opacity: 0.5 }}>Premium Plan</div>
           </div>
           <div style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
             {user?.name?.[0]?.toUpperCase() || "U"}
